@@ -1,11 +1,11 @@
 {
-  "name": "pathbusserver",
-  "version": "1.0.0",
+  "name": "pathbusrestserver",
+  "version": "0.1.0",
   "description": "Servidor para aplicativo PathBus",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Romulo Gabriel Rodrigue",
+  "author": "Romulo Gabriel Rodrigues",
   "license": "MIT"
 }
