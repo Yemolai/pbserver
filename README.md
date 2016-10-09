@@ -1,21 +1,8 @@
-# REST-NES
+# pbServer
 
-A REST API Template made with Node.js, ExpressJS and Sequelize
+A REST API Template made with Node.js, ExpressJS and Sequelize based on rest-NES
 
-The purpose of this code is to give speed to application development as its
-foundations are defined as a template to create simple APIs in JavaScript.
-
-This template is made with heroku deplyoment in mind, but everything should work
-as fine in another platform or in a server environment as well.
-
-This template will be converted into an yeoman generator very soon.
-
-## Be aware
-
-* You'll need a database (its fallback is sqlite memory, **not implemented yet**)
-* There are no tests implemented yet (PR for this are welcome)
-* There are no security at all in this API (don't use it in production **yet**)
-* To define configuration use the .env file, there is a default.env file to help
+This REST API was made to use for pathBUS mobile application.
 
 ## Dependencies
 
@@ -29,12 +16,12 @@ This template will be converted into an yeoman generator very soon.
 
 Clone the repo
 ```
-git clone https://www.github.com/yemolai/rest-nes
+git clone https://www.github.com/yemolai/pbserver
 ```
 
 Enter the created folder
 ```
-cd rest-nes
+cd pbserver
 ```
 
 Install dependencies
