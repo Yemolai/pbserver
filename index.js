@@ -3,14 +3,15 @@ var bodyParser = require('body-parser');
 var router = require('./router');
 var app = express();
 
-app.set('env', 'development');
-app.set('debug', true);
-app.set('port', 3000);
+app.set('STAGE', 'development');
+app.set('DEBUG', true);
+app.set('PORT', 3000);
 
 if ('env' in process) {
-  if ('stage' in process.env) app.set('stage', process.env.stage);
-  if ('debug' in process.env) app.set('debug', process.env.debug);
-  if ('port' in process.env) app.set('port', process.env.port);
+  if ('stage' in process.env) app.set('stage', process.env.STAGE);
+  if ('debug' in process.env) app.set('debug', process.env.DEBUG);
+  if ('port' in process.env) app.set('port', process.env.PORT);
+  console.warn('env: ', process.env);
 }
 
 app.use(bodyParser.json({ strict: true }));
@@ -27,11 +28,11 @@ app.use(function (err, req, res, next) { // eslint-disable-line no-unused-vars
   res.json(responseData);
 });
 
-app.listen(app.get('port'), function () {
+app.listen(app.get('PORT'), function () {
   console.warn('Server running');
-  console.warn('Mode '+ app.get('stage'));
-  console.warn('Port ' + app.get('port'));
-  if (app.get('debug') == true) {
+  console.warn('Mode '+ app.get('STAGE'));
+  console.warn('Port ' + app.get('PORT'));
+  if (app.get('DEBUG') == true) {
     console.warn('Debug activated');
   }
 });
