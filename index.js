@@ -3,9 +3,9 @@ var bodyParser = require('body-parser');
 var router = require('./router');
 var app = express();
 
-app.set('stage', process.env.NODE_ENV);
-app.set('debug', process.env.DEBUG);
-app.set('port', process.env.PORT);
+app.set('STAGE', process.env.NODE_ENV);
+app.set('DEBUG', process.env.DEBUG);
+app.set('PORT', process.env.PORT);
 
 app.use(bodyParser.json({ strict: true }));
 
