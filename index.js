@@ -3,16 +3,9 @@ var bodyParser = require('body-parser');
 var router = require('./router');
 var app = express();
 
-app.set('STAGE', 'development');
-app.set('DEBUG', true);
-app.set('PORT', 3000);
-
-if ('env' in process) {
-  if ('stage' in process.env) app.set('stage', process.env.STAGE);
-  if ('debug' in process.env) app.set('debug', process.env.DEBUG);
-  if ('port' in process.env) app.set('port', process.env.PORT);
-  console.warn('env: ', process.env);
-}
+app.set('stage', process.env.NODE_ENV);
+app.set('debug', process.env.DEBUG);
+app.set('port', process.env.PORT);
 
 app.use(bodyParser.json({ strict: true }));
 
