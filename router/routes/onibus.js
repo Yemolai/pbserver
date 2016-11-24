@@ -13,57 +13,56 @@ var db = require('../db');
  */
 bus.get('/', getBusByLocation);
 function getBusByLocation(req, res) {
-  var absent = [];
-  var invalidFormat = [];
-  var data = {
+  var absent = []; // para os que faltam
+  var invalidFormat = []; // para os que estão em formato errado
+  var data = { // verifica se recebeu os dados necessários
     lat: ('lat' in req.query) ? ((isNaN(parseFloat(req.query.lat))) ? false : parseFloat(req.query.lat)) : null,
     lng: ('lng' in req.query) ? ((isNaN(parseFloat(req.query.lng))) ? false : parseFloat(req.query.lng)) : null,
     rad: ('rad' in req.query) ? ((isNaN(parseFloat(req.query.rad))) ? false : parseFloat(req.query.rad)) : null
   };
-  for (var variable in data) {
-    if (data[variable] === null) {
-      absent.push(variable);
-    } else if (data[variable] === false) {
-      invalidFormat.push(variable);
+  for (var variable in data) { // para cada variável
+    if (data[variable] === null) { // se estiver nula é porque não recebeu
+      absent.push(variable); // registra que não recebeu
+    } else if (data[variable] === false) { // se for falsa é porque está no tipo errado
+      invalidFormat.push(variable); // registra que está com tipo errado
     }
   }
-  if (absent.length > 0) throw { message: 'Missing: '+absent.join(', ') };
-  if (invalidFormat.length > 0) throw { message: 'Not number: '+invalidFormat.join(', ')};
+  if (absent.length > 0) throw { status: 400, message: 'Missing: '+absent.join(', ') }; // se houver faltosos retorna erro
+  if (invalidFormat.length > 0) throw { status: 400, message: 'Not number: '+invalidFormat.join(', ')}; // se houver tipos errados retorna erro
 
   data.rad = Math.abs(data.rad);
 
-  db.model.Onibus.find({
-    where: {
-      $and: {
-        $gte: {
+  db.model.Onibus.find({ // encontre os ônibus
+    where: { // que atendam a estes requisitos
+      $and: { // conjunção AND / E / && (cada item aqui dentro é unido com E)
+        $gte: { // >=
           // @TODO adicionar a comparação de tempo, para reduzir dados velhos
+          // lat>=data.lat-data.rad AND lng>=data.lng-data.rad
           lat: data.lat - data.rad,
           lng: data.lat - data.rad
         },
-        $lte: {
+        $lte: { // <=
+          // lat<=data.lat+data.rad AND lng<=data.lng+data.rad
           lat: data.lng + data.rad,
           lng: data.lng + data.rad
         }
       }
     },
-    attributes: ['id', 'lat', 'lng', 'spd', 'time'],
-    include: [
+    attributes: ['id', 'lat', 'lng', 'spd', 'time'], // trazer apenas essas colunas
+    include: [ // incluir estes modelos relacionados
       {
-        model: db.model.Linha
+        model: db.model.Linha // linha de ônibus que esse ônibus tem relação
       },{
-        model: db.model.Onibus,
-        attributes: ['id','time']
+        model: db.model.Onibus, // ponto anterior deste ônibus que foi registrado
+        attributes: ['id','time'] // trazer só id e timestamp dele
       }],
-    raw: true
+    raw: true // agregar estes modelos relacionados como JSON
   })
-  .then(function (listaDeOnibus) {
-    var listaVazia = listaDeOnibus === null;
-    res.json({
+  .then(function (listaDeOnibus) { // quando receber a lista de onibus
+    var listaVazia = listaDeOnibus === null; // verifica se está vazia
+    res.json({ // retorna dados
       error: false,
-      data: {
-        lista: (listaVazia ? [] : listaDeOnibus),
-        count: (listaVazia ? 0 : listaDeOnibus.length)
-      }
+      data: (listaVazia ? [] : listaDeOnibus) // se estiver vazia, retorna vazio
     });
   })
   .catch(function (e) {
