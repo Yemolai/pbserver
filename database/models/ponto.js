@@ -15,6 +15,7 @@ module.exports = function (database, tipo) {
   }, {
     classMethods: {
       relate: function (Model) {
+        Model.Linha.hasMany(Model.Ponto);
         Model.Ponto.belongsTo(Model.Ponto, { as: 'From' });
       }
     }

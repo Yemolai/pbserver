@@ -13,12 +13,8 @@ app.use(router);
 
 // Basic error handling (keep these args, its important to have exactly these!)
 app.use(function (err, req, res, next) { // eslint-disable-line no-unused-vars
-  console.warn('Res contents: ', res);
   var status = ('status' in err) ? err.status : 500;
-  res.status(status).json({'status': status, 'message': err.message || 'Error' });
-  var responseData = { error: true, message: err.message };
-  if (app.get('env') == 'development') { responseData.stack = err; }
-  res.json(responseData);
+  res.status(status).json({error: true, 'message': err.message || 'Error' });
 });
 
 app.listen(app.get('PORT'), function () {

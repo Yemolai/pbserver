@@ -15,12 +15,6 @@ module.exports = function (database, tipo) {
       allowNull: false,
       defaultValue: false
     }
-  }, {
-    classMethods: {
-      relate: function (Model) {
-        Model.Linha.hasMany(Model.Ponto);
-      }
-    }
   });
   return acesso; // function return
 };

@@ -1,3 +1,4 @@
+var DROP_IT = { force: ('DATABASE_DROP' in process.env) ? process.env.DATABASE_DROP : false };
 var Sequelize = require('sequelize');
 var fs = require('fs');
 var _ = require('lodash');
@@ -54,7 +55,7 @@ try {
         }
         db.conn.authenticate()
         .then(function () {
-          db.conn.sync()
+          db.conn.sync(DROP_IT)
           .then(function () {
             for (var k in db.model) {
               if ('populate' in db.model[k]) {

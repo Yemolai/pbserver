@@ -2,6 +2,7 @@ var rota = require('express').Router();
 var db = require('../db');
 var _ = require('lodash');
 
+rota.get('/:linha', getBus);
 function getBus(req, res) {
   if (!('linha' in req.params)) {
     res.json({
@@ -52,8 +53,8 @@ function getBus(req, res) {
     });
   });
 }
-rota.get('/:linha', getBus);
 
+rota.post('/', addBus);
 function addBus (req, res) {
   if (!('body' in req)) {
     console.error('Post without body');
@@ -117,8 +118,63 @@ function addBus (req, res) {
     });
   });
 }
-rota.post('/', addBus);
 
+/**
+ * Rota para adicionar múltiplos pontos a uma linha de ônibus de uma vez
+ * @arg int linha Referência ao id da linha onde adicionar pontos de navegação
+ * @arg Array pontos Vetor com objetos dos pontos a serem inseridos
+ *
+ * @return Object confirmação dos objetos inseridos
+ */
+rota.post('/bulk/:linha', addMultiplePoints);
+function addMultiplePoints(req, res) {
+  var id;
+  if (isNaN(id = parseFloat(req.params.linha)))
+    throw { message: 'id is not a number' };
+  if (false === ('pontos' in req.body && req.body.pontos instanceof Array))
+    throw { message: 'Points array needed to add' };
+  var pontos = [];
+  for (var pontoId in req.body.pontos) {
+    var ponto = req.body.pontos[pontoId];
+    var pontoString = '('+ponto.lat+','+ponto.lng+')';
+    if (false === ('lat' in ponto && 'lng' in ponto && 'sentido' in ponto))
+      throw { message: 'falta dado no ponto ' + pontoString };
+    else if (false === (ponto.sentido == 'ida' || ponto.sentido == 'volta'))
+      throw { message: 'sentido precisa ser ida ou volta' };
+    else if (isNaN(parseFloat(ponto.lat))||isNaN(parseFloat(ponto.lng)))
+      throw { message: 'formato errado no ponto ' + pontoString };
+    else
+      pontos.push(ponto);
+  }
+  if (pontos.length < 1) throw { message: 'No points to add' };
+  db.model.Linha.findOne({where:{'id':id}})
+  .then(function (Linha) {
+    if (Linha === null) throw { message: 'Invalid Linha identifier' };
+    return db.model.Ponto.bulkCreate(pontos)
+    .then(function (PontosRegistrados) {
+      if (PontosRegistrados === null) throw { message: 'Couldnt register pontos'};
+      Linha.addPontos(PontosRegistrados);
+      return PontosRegistrados;
+    });
+  })
+  .then(function (Pontos) {
+    for (var PontoId in Pontos) {
+      if (PontoId > 0) {
+        Pontos[PontoId].setFrom(Pontos[PontoId-1]);
+      }
+    }
+    return Pontos;
+  })
+  .then(function (Pontos) {
+    res.json({
+      error: false,
+      data: Pontos
+    });
+  })
+  .catch(function (e) { throw e; });
+}
+
+rota.post('/:linha', addPoint);
 function addPoint(req, res) {
   if (!('body' in req)) {
     res.json({
@@ -249,6 +305,5 @@ function addPoint(req, res) {
     });
   });
 } // fim addPoint
-rota.post('/:linha', addPoint);
 
 module.exports = rota;

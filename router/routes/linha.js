@@ -2,9 +2,10 @@ var rota = require('express').Router();
 var db = require('../db');
 // var _ = require('lodash');
 
+rota.get('/', getLinhas);
 function getLinhas (req, res) {
   db.model.Linha.findAll({
-    attributes: ['numero', 'nome'],
+    attributes: ['id','numero', 'nome'],
     raw: true
   })
   .then(function (linhas) {
@@ -28,6 +29,5 @@ function getLinhas (req, res) {
     console.error('erro:', e);
   });
 }
-rota.get('/', getLinhas);
 
 module.exports = rota;
