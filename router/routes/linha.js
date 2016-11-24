@@ -10,7 +10,7 @@ function getLinhas (req, res) {
   })
   .then(function (linhas) {
     if (linhas === null) {
-      var e = {code: 'NO_LINES'};
+      var e = { message: 'There are no Linhas in database' };
       throw e;
     }
     res.json({
@@ -19,14 +19,12 @@ function getLinhas (req, res) {
     });
   })
   .catch(function (e) {
-    if (e.code === 'NO_LINES') {
-      console.error('Não há linhas no banco de dados');
-      res.json({
+    res
+      .statue(e.status || 500)
+      .json({
         error: true,
-        message: 'Não há linhas registradas'
+        message: e.message
       });
-    }
-    console.error('erro:', e);
   });
 }
 
